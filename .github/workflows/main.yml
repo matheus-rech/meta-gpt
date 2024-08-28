@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rstudio-api
+  labels:
+    app: rstudio-api
+spec:
+  replicas: 3  # Number of replicas
+  selector:
+    matchLabels:
+      app: rstudio-api
+  template:
+    metadata:
+      labels:
+        app: rstudio-api
+    spec:
+      containers:
+      - name: rstudio-api
+        image: your-docker-registry/rstudio-meta-analysis:latest
+        ports:
+        - containerPort: 8787
+        env:
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rstudio-secret
+              key: password
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8787
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8787
+          initialDelaySeconds: 15
+          periodSeconds: 20
