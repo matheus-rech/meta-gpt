@@ -7,28 +7,26 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build the Docker image
-      run: |
-        docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Build the Docker image
+        run: |
+          TIMESTAMP=$(date +%s)
+          docker build . --file Dockerfile --tag my-image-name:$TIMESTAMP
 
-    - name: Run the Docker container
-      run: |
-        docker run -d -p 8787:8787 -e PASSWORD=yourpassword my-image-name:$(date +%s)
+      - name: Run the Docker container
+        run: |
+          TIMESTAMP=$(date +%s)
+          docker run -d -p 8787:8787 -e PASSWORD=yourpassword my-image-name:$TIMESTAMP
 
-    - name: Verify the Docker container is running
-      run: |
-        docker ps -a
+      - name: Verify the Docker container is running
+        run: docker ps -a
 
-    - name: Clean up
-      run: |
-        docker stop $(docker ps -q --filter ancestor=my-image-name:$(date +%s))
-        docker rm $(docker ps -a -q --filter ancestor=my-image-name:$(date +%s))
+      - name: Clean up
+        run: |
+          docker stop $(docker ps -q --filter ancestor=my-image-name:$TIMESTAMP)
+          docker rm $(docker ps -a -q --filter ancestor=my-image-name:$TIMESTAMP)
