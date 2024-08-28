@@ -1,0 +1,34 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    - name: Run the Docker container
+      run: |
+        docker run -d -p 8787:8787 -e PASSWORD=yourpassword my-image-name:$(date +%s)
+
+    - name: Verify the Docker container is running
+      run: |
+        docker ps -a
+
+    - name: Clean up
+      run: |
+        docker stop $(docker ps -q --filter ancestor=my-image-name:$(date +%s))
+        docker rm $(docker ps -a -q --filter ancestor=my-image-name:$(date +%s))
